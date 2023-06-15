@@ -136,25 +136,26 @@ localparam RFRSH_CYCLES = 16'd78*MHZ/4'd10;
  SDRAM state machine for 2 bank interleaved access
  2 word burst, CL2
 cmd issued  registered
- 0 RAS0     data1 retruned
+ 0 RAS0     data1 returned
  1          ras0 - data1 returned
  2 CAS0
  3 RAS1
  4          ras1
- 5 CAS1     data0 returned
- 6          cas1 - data0 returned if CAS1 is not write
+ 5 CAS1r    data0 returned
+ 6 CAS1w    cas1 - data0 returned if CAS1 is not write
  7
 */
 
 localparam STATE_RAS0      = 3'd0;   // first state in cycle
 localparam STATE_RAS1      = 3'd3;   // Second ACTIVE command after RAS0 + tRRD (15ns)
 localparam STATE_CAS0      = STATE_RAS0 + RASCAS_DELAY; // CAS phase - 2
-localparam STATE_CAS1      = STATE_RAS1 + RASCAS_DELAY; // CAS phase - 5
+localparam STATE_CAS1r     = STATE_RAS1 + RASCAS_DELAY; // CAS phase - 5
+localparam STATE_CAS1w     = STATE_CAS1r + 1; // CAS phase (writes) - 6
 localparam STATE_READ0     = STATE_CAS0 + CAS_LATENCY + 2'd2; // 6
 localparam STATE_READ0b    = STATE_READ0 + 1'd1;
 localparam STATE_DS0b      = STATE_CAS0 + 1'd1;
 localparam STATE_READ1     = 3'd1;
-localparam STATE_DS1b      = STATE_CAS1 + 1'd1;
+localparam STATE_DS1b      = STATE_CAS1r + 1'd1;
 localparam STATE_READ1b    = 3'd2;
 localparam STATE_LAST      = 3'd7;
 
@@ -448,16 +449,22 @@ always @(posedge clk) begin
 			SDRAM_BA <= addr_latch[0][25:24];
 		end
 
-		if(t == STATE_CAS1 && (we_latch[1] || oe_latch[1])) begin
-			sd_cmd <= we_latch[1]?CMD_WRITE:CMD_READ;
+		if(t == STATE_CAS1r && oe_latch[1]) begin
+			sd_cmd <= CMD_READ;
 			{ SDRAM_DQMH, SDRAM_DQML } <= ~ds[1];
-			if (we_latch[1]) begin
-				SDRAM_DQ <= din_latch[1];
-				case(port[1])
-					PORT_REQ: port2_ack <= port2_req;
-					default: ;
-				endcase;
-			end
+			SDRAM_A <= { 3'b001, addr_latch[1][25:23] > 3'd2, addr_latch[1][9:1] };  // auto precharge
+			SDRAM_BA <= addr_latch[1][24:23] == 2'b11 ? 2'b10 : addr_latch[1][24:23];
+		end
+
+		// Delay writes by one cycle to give some breathing room for bus turnaround.
+		if(t == STATE_CAS1w && we_latch[1]) begin
+			sd_cmd <= CMD_WRITE;
+			{ SDRAM_DQMH, SDRAM_DQML } <= ~ds[1];
+			SDRAM_DQ <= din_latch[1];
+			case(port[1])
+				PORT_REQ: port2_ack <= port2_req;
+				default: ;
+			endcase;
 			SDRAM_A <= { 3'b001, addr_latch[1][25:23] > 3'd2, addr_latch[1][9:1] };  // auto precharge
 			SDRAM_BA <= addr_latch[1][24:23] == 2'b11 ? 2'b10 : addr_latch[1][24:23];
 		end

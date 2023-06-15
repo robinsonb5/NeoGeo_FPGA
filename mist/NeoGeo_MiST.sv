@@ -40,8 +40,10 @@ localparam CONF_STR = {
 	"F,NEO,Load Cart;",
 	"F,NEO,Load Cart (skip ADPCM);",
 	"F,ROM,Load BIOS;",
+`ifndef DEMISTIFY_NO_MEMCARD
 	"S0U,SAV,Load Memory Card;",
 	"TG,Save Memory Card;",
+`endif
 	"O1,System Type,Console(AES),Arcade(MVS);",
 	"O3,Video Mode,NTSC,PAL;",
 	"O45,Scanlines,Off,25%,50%,75%;",
@@ -74,17 +76,18 @@ wire        mouse_en = status[11];
 wire        fix_en = ~status[14];
 wire        spr_en = ~status[15];
 
+
 assign LED = ~ioctl_downl;
 assign SDRAM_CKE = 1; 
-assign SDRAM_CLK = CLK_96M;
+// assign SDRAM_CLK = CLK_96M;
 
 wire CLK_96M, CLK_48M;
 wire pll_locked;
 pll_mist pll(
 	.inclk0(CLOCK_27),
-//	.c0(SDRAM_CLK),
-	.c0(CLK_96M),
-//	.c1(CLK_96M),
+	.c0(SDRAM_CLK),
+//	.c0(CLK_96M),
+	.c1(CLK_96M),
 	.c2(CLK_48M),
 	.locked(pll_locked)
 	);
@@ -182,6 +185,7 @@ data_io #(.ROM_DIRECT_UPLOAD(1'b1)) data_io(
 	.ioctl_addr    ( ioctl_addr   ),
 	.ioctl_dout    ( ioctl_dout   )
 );
+
 
 // reset signal generation
 reg reset;

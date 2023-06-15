@@ -530,10 +530,14 @@ assign SRAM_WE = ~{nBWU, nBWL};
 assign SRAM_RD = ~{nSRAMOEU, nSRAMOEL} & {2{SYSTEM_MVS}};
 assign SRAM_OUT = RAM_Q;
 
+`ifdef DEMISTIFY_NO_MEMCARD
+// Memory card
+assign {nCD1, nCD2} = 2'b11;
+
+`else
 // Memory card
 assign {nCD1, nCD2} = {2{~MEMCARD_EN & ~SYSTEM_CDx}};	// Always plugged in CD systems
 assign CARD_WE = (SYSTEM_CDx | (~nCARDWEN & CARDWENB)) & ~nCRDW;
-
 wire [15:0] memcard_buff_dout;
 memcard MEMCARD(
 	.CLK(CLK_48M),
@@ -548,6 +552,7 @@ memcard MEMCARD(
 	.memcard_din(MEMCARD_DIN),
 	.memcard_dout(MEMCARD_DOUT)
 );
+`endif
 
 /*
 // CA4's polarity depends on the tile's h-flip attribute

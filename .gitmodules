@@ -7,3 +7,6 @@
 [submodule "rtl/jt12"]
 	path = rtl/jt12
 	url = https://github.com/jotego/jt12.git
+[submodule "DeMiSTify"]
+	path = DeMiSTify
+	url = https://github.com/robinsonb5/DeMiSTify
