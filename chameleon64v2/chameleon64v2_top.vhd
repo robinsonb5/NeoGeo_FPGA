@@ -192,6 +192,8 @@ architecture rtl of chameleon64v2_top is
 	signal joy3 : unsigned(demistify_joybits-1 downto 0);
 	signal joy4 : unsigned(demistify_joybits-1 downto 0);
 
+	signal coin_start : std_logic_vector(7 downto 0);
+
 -- Debounced buttons
 	signal menu_button_n : std_logic;
 	signal freeze_button_n : std_logic;
@@ -490,6 +492,7 @@ begin
 
 	controller : entity work.substitute_mcu
 	generic map (
+		joybits => demistify_joybits,
 		sysclk_frequency => 500,
 		debug => false,
 		SPI_FASTBIT => 0, -- Reducing this will make SPI comms faster, for cores which are clocked fast enough.
@@ -530,7 +533,16 @@ begin
 		joy3 => std_logic_vector(joy3),
 		joy4 => std_logic_vector(joy4),
 
-		buttons => (0=>menu_button_n,others=>'0'),
+		buttons => (0=>menu_button_n,
+			demistify_coin4 => coin_start(7),
+			demistify_coin3 => coin_start(6),
+			demistify_coin2 => coin_start(5),
+			demistify_coin1 => coin_start(4),
+			demistify_start4 => coin_start(3),
+			demistify_start3 => coin_start(2),
+			demistify_start2 => coin_start(1),
+			demistify_start1 => coin_start(0),
+			others => '1'),
 
 		-- UART
 		rxd => rs232_rxd,

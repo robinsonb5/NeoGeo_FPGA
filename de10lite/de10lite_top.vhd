@@ -234,9 +234,11 @@ spi_fromguest <= spi_do;
 
 controller : entity work.substitute_mcu
 	generic map (
+		joybits => demistify_joybits,
 		sysclk_frequency => 500,
 		debug => false,
 		jtag_uart => false,
+		SPI_INTERNALBIT => 0,
 		SPI_FASTBIT => 0
 	)
 	port map (

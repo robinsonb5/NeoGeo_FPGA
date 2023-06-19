@@ -28,6 +28,8 @@ $(DEMISTIFYPATH)/site.mk: $(DEMISTIFYPATH)/COPYING
 	$(info *******************************************************)
 	$(error site.mk not found.)
 
+$(DEMISTIFYPATH)/EightThirtyTwo/check_os.mk: $(DEMISTIFYPATH)/EightThirtyTwo/Makefile
+
 include $(DEMISTIFYPATH)/site.mk
 include $(DEMISTIFYPATH)/EightThirtyTwo/check_os.mk
 

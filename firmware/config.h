@@ -45,7 +45,11 @@ here, the number of units defaults to 4. */
 
 /* Send key events via the mist_io block. If the core can support
    a PS/2 keyboard directly then that's probably a better option. */
-#undef CONFIG_SENDKEYS
+#define CONFIG_SENDKEYS
+
+/* Limit key transmission to those required to trigger coin / start buttons.
+   Also causes bits 11 downto 4 of the extra buttons field to be treated as menu / start buttons. */
+#define CONFIG_SENDKEYS_ARCADE
 
 /* Send joystick events using the "new" extended joystick protocol.
    This could support more buttons (if DeMiSTify itself supported them,

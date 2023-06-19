@@ -87,6 +87,7 @@ set game_clk  "${topmodule}pll|altpll_component|auto_generated|pll1|clk[2]"
 set_input_delay -clock [get_clocks $sdram_clk] -reference_pin [get_ports ${RAM_CLK}] -max 6.4 [get_ports ${RAM_IN}]
 set_input_delay -clock [get_clocks $sdram_clk] -reference_pin [get_ports ${RAM_CLK}] -min 3.2 [get_ports ${RAM_IN}]
 
+
 #**************************************************************
 # Set Output Delay
 #**************************************************************
@@ -100,6 +101,7 @@ set_input_delay -clock [get_clocks $sdram_clk] -reference_pin [get_ports ${RAM_C
 set_output_delay -clock [get_clocks $sdram_clk] -reference_pin [get_ports ${RAM_CLK}] -max 1.5 [get_ports ${RAM_OUT}]
 set_output_delay -clock [get_clocks $sdram_clk] -reference_pin [get_ports ${RAM_CLK}] -min -0.8 [get_ports ${RAM_OUT}]
 
+
 #**************************************************************
 # Set Clock Groups
 #**************************************************************
@@ -108,19 +110,19 @@ set_output_delay -clock [get_clocks $sdram_clk] -reference_pin [get_ports ${RAM_
 set_clock_groups -asynchronous -group [get_clocks spiclk] -group [get_clocks ${topmodule}pll|altpll_component|auto_generated|pll1|clk[*]]
 set_clock_groups -asynchronous -group [get_clocks ${game_clk}] -group [get_clocks ${supportclk}]
 
+
 #**************************************************************
 # Set False Path
 #**************************************************************
 
 set_false_path -to ${FALSE_OUT}
 set_false_path -from ${FALSE_IN}
+set_false_path -to ${VGA_OUT}
+
 
 #**************************************************************
 # Set Multicycle Path
 #**************************************************************
-
-set_multicycle_path -to ${VGA_OUT} -setup 3
-set_multicycle_path -to ${VGA_OUT} -hold 2
 
 set_multicycle_path -from [get_clocks $sdram_clk] -to [get_clocks $mem_clk] -setup 2
 set_multicycle_path -from ${topmodule}neogeo_top|M68KCPU|FX68K|excUnit|aob[*]  -to [get_clocks $mem_clk] -setup 2
@@ -128,10 +130,11 @@ set_multicycle_path -from ${topmodule}neogeo_top|M68KCPU|FX68K|excUnit|aob[*]  -
 set_multicycle_path -from ${topmodule}neogeo_top|Z80CPU|cpu|u0|A[*]  -to [get_clocks $mem_clk] -setup 2
 set_multicycle_path -from ${topmodule}neogeo_top|Z80CPU|cpu|u0|A[*]  -to [get_clocks $mem_clk] -hold 1
 
-set_multicycle_path -from {*Size[*]}  -to [get_clocks $mem_clk] -setup 2
-set_multicycle_path -from {*Size[*]}  -to [get_clocks $mem_clk] -hold 1
-set_multicycle_path -from {pcm_merged}  -to [get_clocks $mem_clk] -setup 2
-set_multicycle_path -from {pcm_merged}  -to [get_clocks $mem_clk] -hold 1
+set_multicycle_path -from ${topmodule}*Size[*]  -to [get_clocks $mem_clk] -setup 2
+set_multicycle_path -from ${topmodule}*Size[*]  -to [get_clocks $mem_clk] -hold 1
+set_multicycle_path -from ${topmodule}pcm_merged  -to [get_clocks $mem_clk] -setup 2
+set_multicycle_path -from ${topmodule}pcm_merged  -to [get_clocks $mem_clk] -hold 1
+
 
 #**************************************************************
 # Set Maximum Delay

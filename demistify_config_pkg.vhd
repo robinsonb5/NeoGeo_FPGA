@@ -21,14 +21,26 @@ constant demistify_romsize2 : integer := 12; -- 4k for the second chunk, mirrore
 -- Since Megadrive button B is the most important, we map button 1 -> B, button 2 -> C, button 3 -> A
 -- and button 4 -> Start, hence button1 = 5, button2 = 6, button3 = 4 and button4 = 7,
 
-constant demistify_joybits : integer := 10;
-
 constant demistify_button1 : integer := 4;
 constant demistify_button2 : integer := 5;
 constant demistify_button3 : integer := 8;	-- For NeoGeo swap the select (pause) button and button C
 constant demistify_button4 : integer := 7;
 constant demistify_button5 : integer := 6;
 constant demistify_button6 : integer := 9;
+
+constant demistify_joybits : integer := 10;
+
+-- Arcade coin and start buttons - indices within the buttons field.
+constant demistify_start1 : integer := 4;
+constant demistify_start2 : integer := 5;
+constant demistify_start3 : integer := 6;
+constant demistify_start4 : integer := 7;
+
+constant demistify_coin1 : integer := 8;
+constant demistify_coin2 : integer := 9;
+constant demistify_coin3 : integer := 10;
+constant demistify_coin4 : integer := 11;
+
 
 constant demistify_serialdebug : std_logic := '0';
 

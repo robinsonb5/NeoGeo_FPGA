@@ -74,7 +74,7 @@ end entity;
 -- -----------------------------------------------------------------------
 
 architecture rtl of chameleon64_top is
-   constant reset_cycles : integer := 131071;
+	constant reset_cycles : integer := 131071;
 	
 -- System clocks
 	signal clk_100 : std_logic;
@@ -159,6 +159,9 @@ architecture rtl of chameleon64_top is
 	signal joy2 : unsigned(demistify_joybits-1 downto 0);
 	signal joy3 : unsigned(demistify_joybits-1 downto 0);
 	signal joy4 : unsigned(demistify_joybits-1 downto 0);
+
+	signal coin_start : std_logic_vector(7 downto 0);
+
 	signal usart_rx : std_logic:='1'; -- Safe default
 	signal ir_data : std_logic;
 
@@ -193,6 +196,7 @@ architecture rtl of chameleon64_top is
 	signal iec_atn_out_r : std_logic;
 	signal iec_dat_out_r : std_logic;
 	signal iec_clk_out_r : std_logic;
+	
 begin
 
 rtc_cs<='0';
@@ -352,12 +356,12 @@ rtc_cs<='0';
 	mergeinputs : entity work.chameleon_mergeinputs
 	generic map (
 		joybits => demistify_joybits,
-		button1=>demistify_button1,
-		button2=>demistify_button2,
-		button3=>demistify_button3,
-		button4=>demistify_button4,
-		button5=>demistify_button5,
-		button6=>demistify_button6
+		button1 => demistify_button1,
+		button2 => demistify_button2,
+		button3 => demistify_button3,
+		button4 => demistify_button4,
+		button5 => demistify_button5,
+		button6 => demistify_button6
 	)
 	port map (
 		clk => clk_100,
@@ -384,6 +388,8 @@ rtc_cs<='0';
 		joy4_out => joy4,
 		menu_out_n => menu_button_n,
 		freeze_out_n => freeze_button_n,
+		
+		coin_start => coin_start,
 
 		usart_cts => usart_rts,
 		usart_rxd => usart_tx,
@@ -472,11 +478,12 @@ rtc_cs<='0';
 
 	controller : entity work.substitute_mcu
 	generic map (
+		joybits => demistify_joybits,
 		sysclk_frequency => 500,
 		debug => false,
 		jtag_uart => false,
 		SPI_FASTBIT => 0, -- Reducing this will make SPI comms faster, for cores which are clocked fast enough.
-		-- SPI_INTERNALBIT => 0, -- This will make SPI comms faster, for cores which are clocked fast enough.
+		SPI_INTERNALBIT => 0, -- This will make SPI comms faster, for cores which are clocked fast enough.
 		SPI_EXTERNALCLK => true -- V1 hardware has external limitations on SD card speed.
 	)
 	port map (
@@ -515,7 +522,16 @@ rtc_cs<='0';
 		joy3 => std_logic_vector(joy3),
 		joy4 => std_logic_vector(joy4),
 
-		buttons => (0=>menu_button_n,others=>'0'),
+		buttons => (0=>menu_button_n,
+			demistify_coin4 => coin_start(7),
+			demistify_coin3 => coin_start(6),
+			demistify_coin2 => coin_start(5),
+			demistify_coin1 => coin_start(4),
+			demistify_start4 => coin_start(3),
+			demistify_start3 => coin_start(2),
+			demistify_start2 => coin_start(1),
+			demistify_start1 => coin_start(0),
+			others => '1'),
 
 		-- UART
 		rxd => rs232_rxd,
