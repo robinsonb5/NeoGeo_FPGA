@@ -410,6 +410,8 @@ begin
 		menu_out_n => menu_button_n,
 		freeze_out_n => freeze_button_n,
 
+		coin_start => coin_start,
+
 		usart_cts => usart_rts,
 		usart_rxd => usart_tx,
 		usart_txd => usart_rx,
